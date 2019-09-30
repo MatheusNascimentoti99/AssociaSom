@@ -182,7 +182,6 @@ public class DataController : MonoBehaviour
                infoImagem.text = path;
             }
         }, "Selecione uma imagem", "image/*", maxSize);
-        
     }
 
     private IEnumerator UploadImage()

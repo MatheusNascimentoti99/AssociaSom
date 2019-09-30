@@ -91,6 +91,7 @@ public class GameController : MonoBehaviour
                 i++;
 
             }
+            
             tempo.text = rodada.tempo - 1 + "s";
 
         }
@@ -184,7 +185,8 @@ public class GameController : MonoBehaviour
         RemoveAnswerButtons();
         for (int i = 0; i < rodada.opcoes.Count; i++)
         {
-            StartCoroutine(GetText(rodada.opcoes[i]));   
+            StartCoroutine(GetText(rodada.opcoes[i]));
+            isShow = false;
         }
 
         FalarButton();
@@ -211,16 +213,12 @@ public class GameController : MonoBehaviour
                 answerButtonGameObjects.Add(answerButtonObject);
                 AnswerButton answerButton = answerButtonObject.GetComponent<AnswerButton>();
                 answerButton.Setup(data, false);
-                var texture = DownloadHandlerTexture.GetContent(uwr);
-                Texture2D tex;
-
-                tex = new Texture2D(1, 1);
+                Texture2D tex = DownloadHandlerTexture.GetContent(uwr);
                 answerButton.GetComponent<Image>().sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0, 0));
             }
         }
     }
-
-
+   
 
 
 }
