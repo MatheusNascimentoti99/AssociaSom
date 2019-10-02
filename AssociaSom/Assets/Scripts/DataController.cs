@@ -23,7 +23,6 @@ public class DataController : MonoBehaviour
     private string localAudio;
     public Text aviso;
     public Text infoImagem;
-    private int teste;
 
     public List<DataObject> getFiguras()
     {
@@ -66,7 +65,6 @@ public class DataController : MonoBehaviour
     }
     public void Start()
     {
-
         if (File.Exists(filePath))
         {
             Load();
@@ -99,7 +97,7 @@ public class DataController : MonoBehaviour
 
     void Awake()
     {
-        if(dataController == null)
+        if (dataController == null)
         {
             dataController = this;
         }
@@ -107,43 +105,53 @@ public class DataController : MonoBehaviour
         {
             Destroy(gameObject);
         }
-
         filePath = Application.persistentDataPath + "/figuras.da";
+        
     }
     public void Salvar()
     {
-        
+        DontDestroyOnLoad(gameObject);
         DataObject data = new DataObject();
         data.SetDica(dica.text);
-        data.SetLocalImagem(localImagem);
         data.SetNomeFigura(nomeFigura.text);
 
-       // StartCoroutine(UploadImage());
 
+        StartCoroutine(UploadImage());
         if ( nomeFigura.text.Length > 0 && dica.text.Length > 0 && audio.audioSource.clip != null && localImagem.Length > 0)
         {
-            localAudio = audio.Salvar(nomeFigura.text + "" + figuras.Count);
-            data.SetLocalAudio(localAudio);
-            figuras.Add(data);
+            bool sucess = true;
             FileStream fs = new FileStream(filePath, FileMode.Create);
            
             //Construct a BinaryFormatter and use it to serialize the data to the stream.
             BinaryFormatter formatter = new BinaryFormatter();
             try
             {
+                //StartCoroutine(UploadImage());
+                data.SetLocalImagem(localImagem);
+                localAudio = audio.Salvar(nomeFigura.text + "" + figuras.Count);
+                data.SetLocalAudio(localAudio);
+                figuras.Add(data);
                 formatter.Serialize(fs, figuras);
             }
             catch (SerializationException e)
             {
                 Console.WriteLine("Failed to serialize. Reason: " + e.Message);
-                throw;
+                fs.Close();
+                sucess = false;
+
             }
             finally
             {
-                StartCoroutine(UploadImage());
                 fs.Close();
-                Destroy(gameObject);
-                SceneManager.LoadScene("Menu");
+                if (sucess)
+                {
+                    SceneManager.LoadScene("Menu");
+                }
+                else
+                {
+                    aviso.text = "Erro ao processar informações, reinicei o aplicativo";
+                }
+                
             }
 
         }
@@ -151,8 +159,6 @@ public class DataController : MonoBehaviour
         {
             aviso.text = "Preencha todos os campos";
         }
-        teste++;
-        Debug.Log(teste);
     }
 
     public void Load()
@@ -182,6 +188,8 @@ public class DataController : MonoBehaviour
                infoImagem.text = path;
             }
         }, "Selecione uma imagem", "image/*", maxSize);
+        //localImagem = "C:\\Users\\mathe\\Downloads\\images.jpg";
+        //StartCoroutine(UploadImage());
     }
 
     private IEnumerator UploadImage()
@@ -191,24 +199,42 @@ public class DataController : MonoBehaviour
         // Create a storage reference from our storage service
         Firebase.Storage.StorageReference storage_ref = storage.GetReferenceFromUrl("gs://associasom-2ccf9.appspot.com/");
         Firebase.Storage.StorageReference rivers_ref = storage_ref.Child("images/" +nomeFigura.text+".jpeg");
-        string fileContents = localImagem;
-        //var task = rivers_ref.PutFileAsync("C:\\Users\\Matheus\\Pictures\\GeoGebraImage.png");
-        var task = rivers_ref.PutFileAsync("file://"+fileContents);
+        //var task = rivers_ref.PutFileAsync("C:\\Users\\mathe\\Downloads\\images.jpg");
+        var task = rivers_ref.PutFileAsync("file://"+ localImagem);
 
         yield return new WaitUntil(() => task.IsCompleted);
         if (task.IsFaulted)
         {
             Debug.Log(task.Exception.ToString());
             nomeFigura.text = "Deu ruim";
+            Destroy(gameObject);
         }
         else
         {
-            Debug.Log("Finished uploading... Download Url: " + task.Result.ToString() + " " + rivers_ref.ToString());
+            
+            Debug.Log("Finished uploading... Download Url: " + task.Result.Path + " ");
             nomeFigura.text = localImagem;
-            localImagem = rivers_ref.ToString();
-            String url = task.Result.ToString();
-            Debug.Log(url);
+            StartCoroutine(Download(rivers_ref));
         }
+    }
+
+    private IEnumerator Download(Firebase.Storage.StorageReference rivers_ref)
+    {
+        var uri = rivers_ref.GetDownloadUrlAsync();
+        yield return new WaitUntil(() => uri.IsCompleted);
+        if (uri.IsFaulted)
+        {
+            Debug.Log(uri.Exception.ToString());
+            nomeFigura.text = "Tente selecionar a imagem novamente";
+            Destroy(gameObject);
+        }
+        else
+        {
+            localImagem = uri.Result.AbsoluteUri;
+            Debug.Log(localImagem);
+            Destroy(gameObject);
+        }
+
     }
 
 

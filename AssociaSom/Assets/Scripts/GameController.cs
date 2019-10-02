@@ -48,18 +48,14 @@ public class GameController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        panelFiguras.SetActive(isShow);
         if (isShow && rodada != null)
         {
             rodada.tempo += Time.deltaTime;
 
             tempo.text = string.Format("{0:00.#}", rodada.tempo - 1) + "s";
-            panelFiguras.SetActive(true);
         }
-        else
-        {
-            panelFiguras.SetActive(false);
-        }
+
     }
 
 
@@ -91,7 +87,7 @@ public class GameController : MonoBehaviour
                 i++;
 
             }
-            
+            StartCoroutine(GetAudioClip());
             tempo.text = rodada.tempo - 1 + "s";
 
         }
@@ -108,8 +104,6 @@ public class GameController : MonoBehaviour
     }
     public void FalarButton()
     {
-        ReproduzirNome();
-        while (call.IsSpeak()) { }
         ReproduzirSom();
 
     }
@@ -117,7 +111,7 @@ public class GameController : MonoBehaviour
 
     IEnumerator GetAudioClip()
     {
-        using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip(rodada.figuraCerta.GetLocalAudio(), AudioType.WAV))
+        using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip("file://"+ rodada.figuraCerta.GetLocalAudio(), AudioType.WAV))
         {
             yield return www.Send();
 
@@ -128,7 +122,6 @@ public class GameController : MonoBehaviour
             else
             {
                 audioSource.clip = DownloadHandlerAudioClip.GetContent(www);
-                audioSource.Play();
             }
         }
     }
@@ -218,7 +211,27 @@ public class GameController : MonoBehaviour
             }
         }
     }
-   
+
+    void DownloadTex(DataObject data)
+    {
+        Firebase.Storage.FirebaseStorage storage = Firebase.Storage.FirebaseStorage.DefaultInstance;
+        Firebase.Storage.StorageReference gs_reference = storage.GetReferenceFromUrl(data.GetLocalImagem());
+        const long maxAllowedSize = 1 * 1024 * 1024;
+        gs_reference.GetBytesAsync(maxAllowedSize).ContinueWith((System.Threading.Tasks.Task<byte[]> task) =>
+        {
+            if (task.IsFaulted || task.IsCanceled)
+            {
+                Debug.Log(task.Exception.ToString());
+                // Uh-oh, an error occurred!
+            }
+            else
+            {
+                byte[] fileContents = task.Result;
+                Debug.Log("Finished downloading!");
+            }
+        });
+    }
+
 
 
 }

@@ -162,6 +162,17 @@ Support
 
 Release Notes
 -------------
+### 6.6.0
+  - Overview
+    - Updated dependencies, fixed issues in Database.
+  - Changes
+    - Database (Desktop): Fixed a crash that could occur when trying to keep a
+      location in the database synced when you do not have permission.
+    - Database (Desktop): Queries on locations in the database with query rules
+      now function properly, instead of always returning "Permission denied".
+    - Database (Desktop): Fixed the map-to-vector conversion when firing events
+      that have maps containing enitrely integer keys.
+
 ### 6.5.0
   - Overview
     - Updated dependencies, improved logging for Auth and Database, and fixed
