@@ -28,6 +28,8 @@ public class GameController : MonoBehaviour
     public Falar call;
     private double higthScore;
     private bool isShow;
+    private string localHighestScore;
+    private int highestScore;
     // Start is called before the first frame update
     void Start()
     {
@@ -36,14 +38,20 @@ public class GameController : MonoBehaviour
         erros = 0;
         dataController.Load();
         figuras = dataController.getFiguras();
-        gameController = FindObjectOfType<GameController>();
-        dataController = FindObjectOfType<DataGameController>();
-        NovaRodada();
-        ShowQuestion(rodada);
-        tempo.text = rodada.tempo + "s";
+        if (figuras.Count > 0)
+        {
+            NovaRodada();
+            ShowQuestion(rodada);
+            FalarButton();
+            tempo.text = rodada.tempo + "s";
+        }
     }
 
-
+    private void Awake()
+    {
+        localHighestScore = Application.persistentDataPath + "/Score.up";
+        highestScore = (int) dataController.ReadFile(localHighestScore);
+    }
 
     // Update is called once per frame
     void Update()
@@ -55,7 +63,6 @@ public class GameController : MonoBehaviour
 
             tempo.text = string.Format("{0:00.#}", rodada.tempo - 1) + "s";
         }
-
     }
 
 
@@ -68,10 +75,13 @@ public class GameController : MonoBehaviour
 
             quantRodada++;
             int posRadomAllFiguras = Random.Range(0, figuras.Count);
+            Debug.Log("Quand:" + figuras.Count + "posicão:" + posRadomAllFiguras);
+           
             rodada = new Rodada(quantOpcoes, figuras[posRadomAllFiguras]);
             rodada.figuraCerta = figuras[posRadomAllFiguras];
             rodada.figuraCerta.RigthAnswer = true;
             rodada.opcoes.Add(rodada.figuraCerta);
+            Debug.Log("Certa: " + rodada.figuraCerta);
             int i = 1;
             posRadomAllFiguras = Random.Range(0, figuras.Count);
             DataObject figura = figuras[posRadomAllFiguras];
@@ -87,7 +97,8 @@ public class GameController : MonoBehaviour
                 i++;
 
             }
-            StartCoroutine(GetAudioClip());
+            Debug.Log(rodada.opcoes.Count);
+
             tempo.text = rodada.tempo - 1 + "s";
 
         }
@@ -113,7 +124,7 @@ public class GameController : MonoBehaviour
     {
         using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip("file://"+ rodada.figuraCerta.GetLocalAudio(), AudioType.WAV))
         {
-            yield return www.Send();
+            yield return www.SendWebRequest();
 
             if (www.isNetworkError)
             {
@@ -137,6 +148,7 @@ public class GameController : MonoBehaviour
             panelFiguras.SetActive(false);
             NovaRodada();
             ShowQuestion(rodada);
+            FalarButton();
         }
 
         else
@@ -174,6 +186,7 @@ public class GameController : MonoBehaviour
 
     private void ShowQuestion(Rodada rodada)
     {
+        StartCoroutine(GetAudioClip());
         isShow = false;
         RemoveAnswerButtons();
         for (int i = 0; i < rodada.opcoes.Count; i++)
@@ -181,8 +194,6 @@ public class GameController : MonoBehaviour
             StartCoroutine(GetText(rodada.opcoes[i]));
             isShow = false;
         }
-
-        FalarButton();
         isShow = true;
 
 
@@ -190,8 +201,9 @@ public class GameController : MonoBehaviour
 
     IEnumerator GetText(DataObject data)
     {
-        using (UnityWebRequest uwr = UnityWebRequestTexture.GetTexture(data.GetLocalImagem()))
+        using (UnityWebRequest uwr = UnityWebRequestTexture.GetTexture("file://"+ data.GetLocalImagem()))
         {
+            Debug.Log(data.GetLocalImagem());
             yield return uwr.SendWebRequest();
 
             if (uwr.isNetworkError || uwr.isHttpError)
@@ -210,26 +222,6 @@ public class GameController : MonoBehaviour
                 answerButton.GetComponent<Image>().sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0, 0));
             }
         }
-    }
-
-    void DownloadTex(DataObject data)
-    {
-        Firebase.Storage.FirebaseStorage storage = Firebase.Storage.FirebaseStorage.DefaultInstance;
-        Firebase.Storage.StorageReference gs_reference = storage.GetReferenceFromUrl(data.GetLocalImagem());
-        const long maxAllowedSize = 1 * 1024 * 1024;
-        gs_reference.GetBytesAsync(maxAllowedSize).ContinueWith((System.Threading.Tasks.Task<byte[]> task) =>
-        {
-            if (task.IsFaulted || task.IsCanceled)
-            {
-                Debug.Log(task.Exception.ToString());
-                // Uh-oh, an error occurred!
-            }
-            else
-            {
-                byte[] fileContents = task.Result;
-                Debug.Log("Finished downloading!");
-            }
-        });
     }
 
 

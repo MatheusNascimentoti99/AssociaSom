@@ -17,6 +17,7 @@ public class MenuController : MonoBehaviour
 
     public void StartGame()
     {
+        Destroy(gameObject);
         SceneManager.LoadScene("Game");
     }
     public void OpenCreditos()
@@ -25,6 +26,7 @@ public class MenuController : MonoBehaviour
     }
     public void OpenInserirFiguras()
     {
+        Destroy(gameObject);
         SceneManager.LoadScene("InserirFiguras");
     }
     public void OpenMelhorPontuacao()

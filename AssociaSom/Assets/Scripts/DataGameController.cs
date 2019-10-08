@@ -4,7 +4,8 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 using Firebase.Storage;
-
+using UnityEngine.SceneManagement;
+using System.Runtime.Serialization;
 
 public class DataGameController : MonoBehaviour
 {
@@ -77,6 +78,40 @@ public class DataGameController : MonoBehaviour
                     return texture;
                 }
         return null;
+    }
+
+    public bool SaveFile(object obj, string filePath)
+    {
+
+        try
+        {
+            FileStream fs = new FileStream(filePath, FileMode.Create);
+            //Construct a BinaryFormatter and use it to serialize the data to the stream.
+            BinaryFormatter formatter = new BinaryFormatter();
+            formatter.Serialize(fs, obj);
+            fs.Close();
+            Destroy(gameObject);
+            SceneManager.LoadScene("Menu");
+            return true;
+        }
+        catch (SerializationException)
+        {
+            return false;
+        }
+
+    }
+
+    public object ReadFile(string filePath)
+    {
+        if (File.Exists(filePath))
+        {
+            BinaryFormatter bf = new BinaryFormatter();
+            FileStream file = File.Open(filePath, FileMode.Open);
+            file.Close();
+            return bf.Deserialize(file);
+        }
+        return null;
+
     }
 
 }
