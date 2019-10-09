@@ -1,15 +1,20 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+
 
 public class GameController : MonoBehaviour
 {
     public DataGameController dataController;
     public AudioSource audioSource;
-    private GameController gameController;
+    public GameOver gameOver;
+    public GameObject gameOverPanel;
     public Text score;
     public Text tempo;
     public Button ouvir;
@@ -22,17 +27,23 @@ public class GameController : MonoBehaviour
     public int quantOpcoes;
     public GameObject panelFiguras;
     private int erros;
+    public List<Image> lifes;
     private int quantRodada;
-    List<int> usedValues = new List<int>();
     List<GameObject> answerButtonGameObjects = new List<GameObject>();
     public Falar call;
     private double higthScore;
     private bool isShow;
     private string localHighestScore;
-    private int highestScore;
+    private Pontuacao highestScore;
     // Start is called before the first frame update
     void Start()
     {
+        localHighestScore = Application.persistentDataPath + "/Score.up";
+        highestScore = (Pontuacao)LoadScore(localHighestScore);
+        if (highestScore == null)
+        {
+            highestScore = new Pontuacao(0, "");
+        }
         isShow = false;
         quantRodada = 0;
         erros = 0;
@@ -49,8 +60,7 @@ public class GameController : MonoBehaviour
 
     private void Awake()
     {
-        localHighestScore = Application.persistentDataPath + "/Score.up";
-        highestScore = (int) dataController.ReadFile(localHighestScore);
+        
     }
 
     // Update is called once per frame
@@ -104,6 +114,11 @@ public class GameController : MonoBehaviour
         }
 
     }
+    private void RemoverLife()
+    {
+        lifes[erros - 1].gameObject.SetActive(false);
+    }
+
     private void ReproduzirNome()
     {
         call.Speak(rodada.figuraCerta.GetNomeFigura());
@@ -154,9 +169,13 @@ public class GameController : MonoBehaviour
         else
         {
             erros++;
-            if (erros >= 3)
+            if (erros > 3)
             {
                 GameOver();
+            }
+            else
+            {
+                RemoverLife();
             }
         }
 
@@ -164,17 +183,30 @@ public class GameController : MonoBehaviour
 
     }
 
-    private int GetQuantRodada()
-    {
-        return this.quantRodada;
-    }
 
     public void GameOver()
     {
-        erros++;
-        Debug.Log(erros);
+        gameOverPanel.SetActive(true);
+        if (highestScore.getScore() < higthScore)
+        {
+            gameOver.Recorde(quantRodada, highestScore.getScore());
+        }
+        else
+        {
+            gameOver.Failed(quantRodada, highestScore.getScore());
+        }
     }
-
+    public void SalvarScore()
+    {
+        if (highestScore.getScore() < higthScore)
+        {
+            Pontuacao pontuacao = new Pontuacao(higthScore, gameOver.nomeJogador.text);
+            SaveScore(pontuacao ,localHighestScore);
+            Destroy(gameObject);
+            SceneManager.LoadScene("Menu");
+        }
+        
+    }
     private void RemoveAnswerButtons()
     {
         while (answerButtonGameObjects.Count > 0)
@@ -224,7 +256,38 @@ public class GameController : MonoBehaviour
         }
     }
 
+    public bool SaveScore(object obj, string localScore)
+    {
 
+        try
+        {
+            FileStream fs = new FileStream(localScore, FileMode.Create);
+            //Construct a BinaryFormatter and use it to serialize the data to the stream.
+            BinaryFormatter formatter = new BinaryFormatter();
+            formatter.Serialize(fs, obj);
+            fs.Close();
+            return true;
+        }
+        catch (SerializationException e)
+        {
+            Debug.Log(e);
+            return false;
+        }
+
+    }
+
+    public Pontuacao LoadScore(string localScore)
+    {
+        Pontuacao pontuacao = null;
+        if (File.Exists(localScore))
+        {
+            BinaryFormatter bf = new BinaryFormatter();
+            FileStream file = File.Open(localScore, FileMode.Open);
+            pontuacao = (Pontuacao)bf.Deserialize(file);
+            file.Close();
+        }
+        return pontuacao;
+    }
 
 }
 

@@ -9,6 +9,7 @@ using System.Runtime.Serialization;
 
 public class DataGameController : MonoBehaviour
 {
+    string localHighestScore;
     private List<DataObject> figuras;
     private string filePath;
     public static DataGameController dataController;
@@ -23,6 +24,7 @@ public class DataGameController : MonoBehaviour
     }
     void Awake()
     {
+        localHighestScore = Application.persistentDataPath + "/Score.up";
         if (dataController == null)
         {
             dataController = this;
@@ -59,59 +61,18 @@ public class DataGameController : MonoBehaviour
         }
     }
 
-
-    public Texture2D LoadTex(string localImagem)
+    public Pontuacao getRecorde()
     {
-        Firebase.Storage.StorageReference storageReference =
-        Firebase.Storage.FirebaseStorage.DefaultInstance.GetReferenceFromUrl("storage_url");
-
-        var task = storageReference.Child("resource_name").GetBytesAsync(1024 * 1024);
-                if (task.IsFaulted || task.IsCanceled)
-                {
-                    Debug.Log(task.Exception.ToString());
-                }
-                else
-                {
-                    byte[] fileContents = task.Result;
-                    Texture2D texture = new Texture2D(1, 1);
-                    texture.LoadImage(fileContents);
-                    return texture;
-                }
-        return null;
-    }
-
-    public bool SaveFile(object obj, string filePath)
-    {
-
-        try
-        {
-            FileStream fs = new FileStream(filePath, FileMode.Create);
-            //Construct a BinaryFormatter and use it to serialize the data to the stream.
-            BinaryFormatter formatter = new BinaryFormatter();
-            formatter.Serialize(fs, obj);
-            fs.Close();
-            Destroy(gameObject);
-            SceneManager.LoadScene("Menu");
-            return true;
-        }
-        catch (SerializationException)
-        {
-            return false;
-        }
-
-    }
-
-    public object ReadFile(string filePath)
-    {
-        if (File.Exists(filePath))
+        Pontuacao pontuacao = null;
+        if (File.Exists(localHighestScore))
         {
             BinaryFormatter bf = new BinaryFormatter();
-            FileStream file = File.Open(filePath, FileMode.Open);
+            FileStream file = File.Open(localHighestScore, FileMode.Open);
+            pontuacao = (Pontuacao)bf.Deserialize(file);
             file.Close();
-            return bf.Deserialize(file);
         }
-        return null;
-
+        return pontuacao;
     }
+
 
 }
