@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "748049788541",
+    "firebase_url": "https://associasom-2ccf9.firebaseio.com",
+    "project_id": "associasom-2ccf9",
+    "storage_bucket": "associasom-2ccf9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:748049788541:android:cffd3691e4d3c400ab0b14",
+        "android_client_info": {
+          "package_name": "com.DefaultCompany.AssociaSom"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "748049788541-3ng5h14b60kbe5akeevlggevrmqaj9cr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA9z5M9sBk3VWHZBCshpG-ZVm1HKm2JLqU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "748049788541-3ng5h14b60kbe5akeevlggevrmqaj9cr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
