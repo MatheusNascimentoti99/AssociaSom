@@ -11,7 +11,7 @@ public class MenuController : MonoBehaviour
     }
     public void Menu()
     {
-        Object.Destroy(gameObject);
+        Destroy(gameObject);
         SceneManager.LoadScene("Menu");
     }
 

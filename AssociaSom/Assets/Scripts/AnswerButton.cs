@@ -23,12 +23,12 @@ public class AnswerButton : MonoBehaviour
     }
     public void HandleClick()
     {
-        gameController.AnswerButtonClicked(data.RigthAnswer, data);
+        gameController.AnswerButtonClicked(data.rigthAnswer, data);
     }
     public void Setup(DataObject objData, bool isCerta)
     {
         data = objData;
-        data.RigthAnswer = isCerta;
+        data.rigthAnswer = isCerta;
     }
 
    

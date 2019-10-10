@@ -18,7 +18,6 @@ namespace InfinityEngine.Localization
     public class LocalizedAudio : MonoBehaviour
     {
 
-        [Popup(R3.audios.Names, PopupValueTypes.String, true)]
         [SerializeField]
         private string key;
         private AudioClip clip;

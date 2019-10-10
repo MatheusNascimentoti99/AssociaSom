@@ -7,6 +7,9 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using Firebase;
+using Firebase.Database;
+using Firebase.Unity.Editor;
 
 
 public class GameController : MonoBehaviour
@@ -19,15 +22,20 @@ public class GameController : MonoBehaviour
     public Text tempo;
     public Button ouvir;
     public Button dica;
+    public List<Image> lifes;
+    public GameObject panelFiguras;
     private Rodada rodada;
-    private DataObject[] figuraShows;
-    private List<DataObject> figuras;
     public SimpleObjectPool answerButtonOjbectPool;
     public Transform answerButtonParent;
+    public Text aviso;
+    public DicaController dicaController;
+    public ConfigController config;
+
+    private DataObject[] figuraShows;
+    private List<DataObject> figuras;
+    private List<DataObject> figurasImport;
     public int quantOpcoes;
-    public GameObject panelFiguras;
     private int erros;
-    public List<Image> lifes;
     private int quantRodada;
     List<GameObject> answerButtonGameObjects = new List<GameObject>();
     public Falar call;
@@ -38,19 +46,31 @@ public class GameController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        FirebaseApp.DefaultInstance.SetEditorDatabaseUrl("https://associasom-2ccf9.firebaseio.com/");
+
+        // Get the root reference location of the database.
+        DatabaseReference reference = FirebaseDatabase.DefaultInstance.RootReference;
+        
+
         localHighestScore = Application.persistentDataPath + "/Score.up";
         highestScore = (Pontuacao)LoadScore(localHighestScore);
         if (highestScore == null)
         {
             highestScore = new Pontuacao(0, "");
+            aviso.text = "Sem figuras suficientes para jogar!\n Necessário pelo menos três figuras cadastradas";
+            aviso.gameObject.SetActive(true);
         }
         isShow = false;
         quantRodada = 0;
         erros = 0;
-        dataController.Load();
+        if(!config.ImportFiguras())
+            dataController.Load();
+        else
+            LoadDataBase();
         figuras = dataController.getFiguras();
-        if (figuras.Count > 0)
+        if (figuras.Count > 0 || config.ImportFiguras())
         {
+            aviso.gameObject.SetActive(false);
             NovaRodada();
             ShowQuestion(rodada);
             FalarButton();
@@ -89,7 +109,7 @@ public class GameController : MonoBehaviour
            
             rodada = new Rodada(quantOpcoes, figuras[posRadomAllFiguras]);
             rodada.figuraCerta = figuras[posRadomAllFiguras];
-            rodada.figuraCerta.RigthAnswer = true;
+            rodada.figuraCerta.rigthAnswer = true;
             rodada.opcoes.Add(rodada.figuraCerta);
             Debug.Log("Certa: " + rodada.figuraCerta);
             int i = 1;
@@ -99,7 +119,7 @@ public class GameController : MonoBehaviour
             {
                 if (!rodada.opcoes.Contains(figura))
                 {
-                    figura.RigthAnswer = false;
+                    figura.rigthAnswer = false;
                     rodada.opcoes.Add(figura);
                 }
                 posRadomAllFiguras = Random.Range(0, figuras.Count);
@@ -119,9 +139,9 @@ public class GameController : MonoBehaviour
         lifes[erros - 1].gameObject.SetActive(false);
     }
 
-    private void ReproduzirNome()
+    private void ReproduzirNome(string frase)
     {
-        call.Speak(rodada.figuraCerta.GetNomeFigura());
+        call.Speak(frase);
     }
     private void ReproduzirSom()
     {
@@ -168,6 +188,7 @@ public class GameController : MonoBehaviour
 
         else
         {
+            ReproduzirNome(data.GetNomeFigura()+", Não!");
             erros++;
             if (erros > 3)
             {
@@ -181,6 +202,11 @@ public class GameController : MonoBehaviour
 
 
 
+    }
+
+    public void Dica()
+    {
+        dicaController.CallDica(rodada.figuraCerta.Dica());
     }
 
 
@@ -289,5 +315,29 @@ public class GameController : MonoBehaviour
         return pontuacao;
     }
 
+    private void LoadDataBase()
+    {
+        figurasImport = new List<DataObject>();
+        Firebase.Database.FirebaseDatabase dbInstance = Firebase.Database.FirebaseDatabase.DefaultInstance;
+        dbInstance.GetReference("figuras").GetValueAsync().ContinueWith(task => {
+            if (task.IsFaulted)
+            {
+                // Handle the error...
+            }
+            else if (task.IsCompleted)
+            {
+                DataSnapshot snapshot = task.Result;
+                foreach (DataSnapshot figura in snapshot.Children)
+                {
+                    IDictionary discFigura = (IDictionary)figura.Value;
+                    Debug.Log("Teste: " + discFigura["dica"] + " - " + discFigura["localImagem"]);
+                    figurasImport.Add(new DataObject(discFigura["nomeFigura"].ToString(),
+                        discFigura["dica"].ToString(), discFigura["localImagem"].ToString(),
+                        discFigura["localAudio"].ToString(), (bool)discFigura["rigthAnswer"]));
+                }
+                figuras = figurasImport;
+            }
+        });
+    }
 }
 

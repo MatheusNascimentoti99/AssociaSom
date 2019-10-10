@@ -10,7 +10,21 @@ public class DataObject
     private string dica;
     private string localImagem;
     private string localAudio;
-    public bool RigthAnswer;
+    public bool rigthAnswer;
+
+
+    public DataObject(string nomeFigura, string dica, string localImagem, string localAudio, bool rigthAnswer)
+    {
+        this.dica = dica;
+        this.nomeFigura = nomeFigura;
+        this.localAudio = localAudio;
+        this.localImagem = localImagem;
+        this.rigthAnswer = rigthAnswer;
+    }
+    public DataObject()
+    {
+
+    }
 
     public string GetNomeFigura()
     {
