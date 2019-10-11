@@ -10,7 +10,7 @@ using UnityEngine.UI;
 using Firebase;
 using Firebase.Database;
 using Firebase.Unity.Editor;
-
+using System.Threading.Tasks;
 
 public class GameController : MonoBehaviour
 {
@@ -43,27 +43,51 @@ public class GameController : MonoBehaviour
     private bool isShow;
     private string localHighestScore;
     private Pontuacao highestScore;
-    // Start is called before the first frame update
-    void Start()
-    {
 
+    private bool running;
+    // Start is called before the first frame update
+    async void  Start()
+    {
+        figuras = new List<DataObject>();
         localHighestScore = Application.persistentDataPath + "/Score.up";
         highestScore = (Pontuacao)LoadScore(localHighestScore);
         if (highestScore == null)
         {
             highestScore = new Pontuacao(0, "");
-            aviso.text = "Sem figuras suficientes para jogar!\n Necessário pelo menos três figuras cadastradas";
-            aviso.gameObject.SetActive(true);
+            
         }
         isShow = false;
         quantRodada = 0;
         erros = 0;
-        if(!config.getImportFiguras())
+
+        if (!config.getImportFiguras())
+        {
             dataController.Load();
+            figuras = dataController.getFiguras();
+        }
         else
-            figuras = config.LoadDataBase();
-        figuras = dataController.getFiguras();
-        if (figuras.Count > 0 || config.getImportFiguras())
+        {
+            var taskImport = await LoadDataBase(figuras);
+            Debug.Log("Esperando2 " + running);
+            DataSnapshot import = taskImport;
+            figurasImport = new List<DataObject>();
+            foreach (DataSnapshot figura in import.Children)
+            {
+
+                IDictionary discFigura = (IDictionary)figura.Value;
+                DataObject data = new DataObject(discFigura["nomeFigura"].ToString(),
+                    discFigura["dica"].ToString(), discFigura["localImagem"].ToString(),
+                    discFigura["localAudio"].ToString(), (bool)discFigura["rigthAnswer"]);
+                Debug.Log(data.GetNomeFigura());
+                figurasImport.Add(data);
+                
+            }
+            figuras = figurasImport;
+        }
+
+       
+        Debug.Log(figuras.Count);
+        if (figuras.Count >= 2)
         {
             aviso.gameObject.SetActive(false);
             NovaRodada();
@@ -71,11 +95,17 @@ public class GameController : MonoBehaviour
             FalarButton();
             tempo.text = rodada.tempo + "s";
         }
+        else
+        {
+            aviso.gameObject.SetActive(true);
+            aviso.text = "Sem figuras suficientes para jogar!\n Necessário pelo menos três figuras cadastradas";
+        }
+
     }
 
     private void Awake()
     {
-        
+        config.Up();
     }
 
     // Update is called once per frame
@@ -152,7 +182,8 @@ public class GameController : MonoBehaviour
 
     IEnumerator GetAudioClip()
     {
-        using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip("file://"+ rodada.figuraCerta.GetLocalAudio(), AudioType.WAV))
+        string localFile = !config.getImportFiguras() ? "file://" + rodada.figuraCerta.GetLocalAudio() : rodada.figuraCerta.GetLocalAudio();
+        using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip(localFile, AudioType.WAV))
         {
             yield return www.SendWebRequest();
 
@@ -255,7 +286,8 @@ public class GameController : MonoBehaviour
 
     IEnumerator GetText(DataObject data)
     {
-        using (UnityWebRequest uwr = UnityWebRequestTexture.GetTexture("file://"+ data.GetLocalImagem()))
+        string localFile = !config.getImportFiguras() ? "file://" + data.GetLocalImagem() : data.GetLocalImagem();
+        using (UnityWebRequest uwr = UnityWebRequestTexture.GetTexture(localFile))
         {
             Debug.Log(data.GetLocalImagem());
             yield return uwr.SendWebRequest();
@@ -310,6 +342,15 @@ public class GameController : MonoBehaviour
         }
         return pontuacao;
     }
+
+    public async Task<DataSnapshot> LoadDataBase(List<DataObject> figurasImport)
+    {
+        Firebase.Database.FirebaseDatabase dbInstance = Firebase.Database.FirebaseDatabase.DefaultInstance;
+        running = true;
+        Debug.Log("Esperando1 " + running);
+        return await dbInstance.GetReference("figuras").GetValueAsync();
+    }
+
 
 
 }

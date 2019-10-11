@@ -111,13 +111,15 @@ public class ConfigController : MonoBehaviour
         config.audioDescricao = !config.audioDescricao;
     }
 
-    public List<DataObject> LoadDataBase()
+     public bool LoadDataBase(List<DataObject> figurasImport)
     {
-        List<DataObject> figurasImport = new List<DataObject>();
+        bool running = true; 
         Firebase.Database.FirebaseDatabase dbInstance = Firebase.Database.FirebaseDatabase.DefaultInstance;
         dbInstance.GetReference("figuras").GetValueAsync().ContinueWith(task => {
+            
             if (task.IsFaulted)
             {
+                running = false;
                 // Handle the error...
             }
             else if (task.IsCompleted)
@@ -126,15 +128,17 @@ public class ConfigController : MonoBehaviour
                 foreach (DataSnapshot figura in snapshot.Children)
                 {
                     IDictionary discFigura = (IDictionary)figura.Value;
-                    Debug.Log("Teste: " + discFigura["dica"] + " - " + discFigura["localImagem"]);
-                    figurasImport.Add(new DataObject(discFigura["nomeFigura"].ToString(),
+                    DataObject data = new DataObject(discFigura["nomeFigura"].ToString(),
                         discFigura["dica"].ToString(), discFigura["localImagem"].ToString(),
-                        discFigura["localAudio"].ToString(), (bool)discFigura["rigthAnswer"]));
+                        discFigura["localAudio"].ToString(), (bool)discFigura["rigthAnswer"]);
+                    Debug.Log(data.GetNomeFigura());
+                    figurasImport.Add(data);
                 }
+                running = false;
                 
             }
         });
-        return figurasImport;
+        return running;
     }
 }
 
