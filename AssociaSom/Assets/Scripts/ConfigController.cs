@@ -16,6 +16,9 @@ public class ConfigController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+    }
+    public void Up()
+    {
         loadConfig();
     }
     private void Awake()
@@ -75,6 +78,7 @@ public class ConfigController : MonoBehaviour
         {
             config = new Configuracao();
         }
+        Debug.Log("Audio:" + config.audioDescricao + ", FIguras: " + config.importFiguras);
     }
 
     public bool getImportFiguras()

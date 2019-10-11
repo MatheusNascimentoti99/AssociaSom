@@ -183,7 +183,8 @@ public class GameController : MonoBehaviour
 
         else
         {
-            ReproduzirNome(data.GetNomeFigura()+", Não!");
+            if(config.getAudioDescricao())
+                ReproduzirNome(data.GetNomeFigura()+", Não!");
             erros++;
             if (erros > 3)
             {

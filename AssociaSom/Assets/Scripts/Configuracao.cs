@@ -11,6 +11,11 @@ public class Configuracao
 {
     public bool importFiguras;
     public bool audioDescricao; 
+    public Configuracao()
+    {
+        importFiguras = true;
+        audioDescricao = true;
+    }
 }
 
 

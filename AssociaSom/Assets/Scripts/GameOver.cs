@@ -11,7 +11,7 @@ public class GameOver : MonoBehaviour
     public Text rodada;
     public Text recordeAtual;
     public Button submit;
-
+    public Configuracao config;
 
     public void Recorde(int quantRodada, double record)
     {
