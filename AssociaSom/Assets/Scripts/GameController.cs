@@ -46,11 +46,6 @@ public class GameController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        FirebaseApp.DefaultInstance.SetEditorDatabaseUrl("https://associasom-2ccf9.firebaseio.com/");
-
-        // Get the root reference location of the database.
-        DatabaseReference reference = FirebaseDatabase.DefaultInstance.RootReference;
-        
 
         localHighestScore = Application.persistentDataPath + "/Score.up";
         highestScore = (Pontuacao)LoadScore(localHighestScore);
@@ -63,12 +58,12 @@ public class GameController : MonoBehaviour
         isShow = false;
         quantRodada = 0;
         erros = 0;
-        if(!config.ImportFiguras())
+        if(!config.getImportFiguras())
             dataController.Load();
         else
-            LoadDataBase();
+            figuras = config.LoadDataBase();
         figuras = dataController.getFiguras();
-        if (figuras.Count > 0 || config.ImportFiguras())
+        if (figuras.Count > 0 || config.getImportFiguras())
         {
             aviso.gameObject.SetActive(false);
             NovaRodada();
@@ -315,29 +310,6 @@ public class GameController : MonoBehaviour
         return pontuacao;
     }
 
-    private void LoadDataBase()
-    {
-        figurasImport = new List<DataObject>();
-        Firebase.Database.FirebaseDatabase dbInstance = Firebase.Database.FirebaseDatabase.DefaultInstance;
-        dbInstance.GetReference("figuras").GetValueAsync().ContinueWith(task => {
-            if (task.IsFaulted)
-            {
-                // Handle the error...
-            }
-            else if (task.IsCompleted)
-            {
-                DataSnapshot snapshot = task.Result;
-                foreach (DataSnapshot figura in snapshot.Children)
-                {
-                    IDictionary discFigura = (IDictionary)figura.Value;
-                    Debug.Log("Teste: " + discFigura["dica"] + " - " + discFigura["localImagem"]);
-                    figurasImport.Add(new DataObject(discFigura["nomeFigura"].ToString(),
-                        discFigura["dica"].ToString(), discFigura["localImagem"].ToString(),
-                        discFigura["localAudio"].ToString(), (bool)discFigura["rigthAnswer"]));
-                }
-                figuras = figurasImport;
-            }
-        });
-    }
+
 }
 

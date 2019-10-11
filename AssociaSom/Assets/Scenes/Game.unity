@@ -277,13 +277,6 @@ PrefabInstance:
       propertyPath: m_Colors.m_PressedColor.b
       value: 0.15508187
       objectReference: {fileID: 0}
-    - target: {fileID: 8162231805379866833, guid: dd2b3071568b9134195e4b1ccc44a453,
-        type: 3}
-      propertyPath: m_Text
-      value: 'Sair
-
-'
-      objectReference: {fileID: 0}
     - target: {fileID: 3610470738379558941, guid: dd2b3071568b9134195e4b1ccc44a453,
         type: 3}
       propertyPath: m_CullTransparentMesh
@@ -293,6 +286,13 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Enabled
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8162231805379866833, guid: dd2b3071568b9134195e4b1ccc44a453,
+        type: 3}
+      propertyPath: m_Text
+      value: 'Sair
+
+'
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dd2b3071568b9134195e4b1ccc44a453, type: 3}
@@ -946,7 +946,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &321312903
 RectTransform:
   m_ObjectHideFlags: 0
@@ -979,7 +979,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 2100000, guid: 5c3702b54abe6488c83f3e770c49eb99, type: 3}
+  m_Material: {fileID: 2100000, guid: cbb534185dff54348b6e65b2b5efee55, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
@@ -1320,11 +1320,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Title
       objectReference: {fileID: 0}
-    - target: {fileID: 8979236248618715411, guid: 618df2c7b7d878a4c9bcde0209da6c9e,
-        type: 3}
-      propertyPath: m_FontData.m_FontSize
-      value: 60
-      objectReference: {fileID: 0}
     - target: {fileID: 8979236248618715408, guid: 618df2c7b7d878a4c9bcde0209da6c9e,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1429,6 +1424,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Pivot.y
       value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8979236248618715411, guid: 618df2c7b7d878a4c9bcde0209da6c9e,
+        type: 3}
+      propertyPath: m_FontData.m_FontSize
+      value: 60
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 618df2c7b7d878a4c9bcde0209da6c9e, type: 3}
@@ -1667,23 +1667,6 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 575535237}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &575535240
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 575535239}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_IgnoreReversedGraphics: 1
-  m_BlockingObjects: 0
-  m_BlockingMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
 --- !u!114 &575535241
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2894,7 +2877,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.8225579}
   m_AnchorMax: {x: 0.76511115, y: 0.90584695}
-  m_AnchoredPosition: {x: 1.5, y: 18.913}
+  m_AnchoredPosition: {x: 1.5, y: 18.913025}
   m_SizeDelta: {x: 251.1, y: 110.600006}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1617484806
@@ -3399,6 +3382,7 @@ MonoBehaviour:
   answerButtonParent: {fileID: 777555091}
   aviso: {fileID: 658680715}
   dicaController: {fileID: 586166883}
+  config: {fileID: 0}
   quantOpcoes: 4
   call: {fileID: 1762534743}
 --- !u!222 &1949290876
