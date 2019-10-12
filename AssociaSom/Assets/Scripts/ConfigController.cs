@@ -23,8 +23,8 @@ public class ConfigController : MonoBehaviour
     }
     private void Awake()
     {
+        filePath = Application.persistentDataPath + "/config.up";
         FirebaseApp.DefaultInstance.SetEditorDatabaseUrl("https://associasom-2ccf9.firebaseio.com/");
-
         // Get the root reference location of the database.
         DatabaseReference reference = FirebaseDatabase.DefaultInstance.RootReference;
         if (configController == null)
@@ -36,7 +36,7 @@ public class ConfigController : MonoBehaviour
             Destroy(gameObject);
         }
 
-        filePath = Application.persistentDataPath + "/config.log";
+       
         DontDestroyOnLoad(gameObject);
     }
 
@@ -45,7 +45,7 @@ public class ConfigController : MonoBehaviour
     {
         
     }
-    public bool SaveConfig()
+    public void SaveConfig()
     {
 
         try
@@ -55,12 +55,10 @@ public class ConfigController : MonoBehaviour
             BinaryFormatter formatter = new BinaryFormatter();
             formatter.Serialize(fs, config);
             fs.Close();
-            return true;
         }
         catch (SerializationException e)
         {
             Debug.Log(e);
-            return false;
         }
 
     }
@@ -111,34 +109,6 @@ public class ConfigController : MonoBehaviour
         config.audioDescricao = !config.audioDescricao;
     }
 
-     public bool LoadDataBase(List<DataObject> figurasImport)
-    {
-        bool running = true; 
-        Firebase.Database.FirebaseDatabase dbInstance = Firebase.Database.FirebaseDatabase.DefaultInstance;
-        dbInstance.GetReference("figuras").GetValueAsync().ContinueWith(task => {
-            
-            if (task.IsFaulted)
-            {
-                running = false;
-                // Handle the error...
-            }
-            else if (task.IsCompleted)
-            {
-                DataSnapshot snapshot = task.Result;
-                foreach (DataSnapshot figura in snapshot.Children)
-                {
-                    IDictionary discFigura = (IDictionary)figura.Value;
-                    DataObject data = new DataObject(discFigura["nomeFigura"].ToString(),
-                        discFigura["dica"].ToString(), discFigura["localImagem"].ToString(),
-                        discFigura["localAudio"].ToString(), (bool)discFigura["rigthAnswer"]);
-                    Debug.Log(data.GetNomeFigura());
-                    figurasImport.Add(data);
-                }
-                running = false;
-                
-            }
-        });
-        return running;
-    }
+
 }
 

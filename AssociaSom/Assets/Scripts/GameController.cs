@@ -44,12 +44,14 @@ public class GameController : MonoBehaviour
     private string localHighestScore;
     private Pontuacao highestScore;
 
+    private Firebase.Database.FirebaseDatabase dbInstance;
     private bool running;
     // Start is called before the first frame update
     async void  Start()
     {
         figuras = new List<DataObject>();
         localHighestScore = Application.persistentDataPath + "/Score.up";
+        
         highestScore = (Pontuacao)LoadScore(localHighestScore);
         if (highestScore == null)
         {
@@ -87,7 +89,7 @@ public class GameController : MonoBehaviour
 
        
         Debug.Log(figuras.Count);
-        if (figuras.Count >= 2)
+        if (figuras.Count > 1)
         {
             aviso.gameObject.SetActive(false);
             NovaRodada();
@@ -106,6 +108,8 @@ public class GameController : MonoBehaviour
     private void Awake()
     {
         config.Up();
+        
+
     }
 
     // Update is called once per frame
@@ -345,7 +349,7 @@ public class GameController : MonoBehaviour
 
     public async Task<DataSnapshot> LoadDataBase(List<DataObject> figurasImport)
     {
-        Firebase.Database.FirebaseDatabase dbInstance = Firebase.Database.FirebaseDatabase.DefaultInstance;
+        dbInstance = Firebase.Database.FirebaseDatabase.DefaultInstance;
         running = true;
         Debug.Log("Esperando1 " + running);
         return await dbInstance.GetReference("figuras").GetValueAsync();
