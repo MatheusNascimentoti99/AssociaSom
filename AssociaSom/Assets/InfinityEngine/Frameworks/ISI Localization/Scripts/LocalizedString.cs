@@ -36,20 +36,31 @@ namespace InfinityEngine.Localization
             /// </summary>
             Text,
 
+            /// <summary>
+            /// UnityEngine.TextMesh
+            /// </summary>
+            TextMesh,
 
+            /// <summary>
+            /// TMPro.TextMeshPro
+            /// </summary>
+            TextMeshPro,
+
+            /// <summary>
+            /// TMPro.TextMeshProUGUI
+            /// </summary>
+            TextMeshProUGUI,
         }
 
         [SerializeField]
         private TextComponentType type;
 
-        [Popup(R3.strings.Names, PopupValueTypes.String, true)]
         [SerializeField]
         private string key;
 
         private Text label;
-        private Text textMesh;
-        private Text textMeshPro;
-        private Text textMeshProUGUI;
+        private TextMesh textMesh;
+
 
         private static List<LocalizedString> LocalizedStrings;
 
@@ -75,6 +86,10 @@ namespace InfinityEngine.Localization
                 case TextComponentType.Text:
                     component = label = GetComponent<Text>();
                     break;
+                case TextComponentType.TextMesh:
+                    component = textMesh = GetComponent<TextMesh>();
+                    break;
+
             }
 
             if (component == null)
@@ -92,11 +107,6 @@ namespace InfinityEngine.Localization
             if (textMesh != null)
                 textMesh.text = ISILocalization.GetValueOf(key);
 
-            if (textMeshPro != null)
-                textMeshPro.text = ISILocalization.GetValueOf(key);
-
-            if (textMeshProUGUI != null)
-                textMeshProUGUI.text = ISILocalization.GetValueOf(key);
         }
 
         /// <summary>

@@ -9,9 +9,10 @@ public class MenuController : MonoBehaviour
     {
         data = FindObjectOfType<DataController>();   
     }
+
     public void Menu()
     {
-        Object.Destroy(gameObject);
+        Destroy(gameObject);
         SceneManager.LoadScene("Menu");
     }
 
@@ -24,6 +25,12 @@ public class MenuController : MonoBehaviour
     {
         SceneManager.LoadScene("Creditos");
     }
+
+    public void OpenConfig()
+    {
+        SceneManager.LoadScene("Configuracoes");
+    }
+
     public void OpenInserirFiguras()
     {
         Destroy(gameObject);

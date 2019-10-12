@@ -4,10 +4,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-using System;
-using System.Collections;
 using System.Runtime.Serialization;
-using Firebase.Storage;
 
 
 
@@ -75,23 +72,6 @@ public class DataController : MonoBehaviour
         {
             figuras = new List<DataObject>();
         }
-        Firebase.FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task => {
-            var dependencyStatus = task.Result;
-            if (dependencyStatus == Firebase.DependencyStatus.Available)
-            {
-                // Create and hold a reference to your FirebaseApp,
-                // where app is a Firebase.FirebaseApp property of your application class.
-                //   app = Firebase.FirebaseApp.DefaultInstance;
-
-                // Set a flag here to indicate whether Firebase is ready to use by your app.
-            }
-            else
-            {
-                UnityEngine.Debug.LogError(System.String.Format(
-                  "Could not resolve all Firebase dependencies: {0}", dependencyStatus));
-                // Firebase Unity SDK is not safe to use here.
-            }
-        });
 
     }
 
@@ -177,7 +157,7 @@ public class DataController : MonoBehaviour
                 localImagem = path;
                 infoImagem.text = path;
             }
-            //localImagem = "C:\\Users\\mathe\\Downloads\\AC3_THEME\\uPlay_PC_Wallpaper1_800x600.jpg";
+            //localImagem = "C:\\Users\\mathe\\Downloads\\AC3_THEME\\uPlay_PC_Wallpaper3_1920x1200.jpg";
         }, "Selecione uma imagem", "image/*", maxSize);
        
     }

@@ -26,7 +26,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Creditos.unity
     guid: de2b087052d37f74492129bed9388eb8
+  - enabled: 1
+    path: Assets/Scenes/Configuracoes.unity
+    guid: 132f718e8a205ce419b2067ba74accd9
   - enabled: 0
-    path: Assets/Demo/SpeechEngine/Test.unity
+    path: 
     guid: 01e299c1dc02ddd4a8826a5998c42531
   m_configObjects: {}

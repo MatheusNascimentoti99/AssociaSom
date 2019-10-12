@@ -45,7 +45,6 @@ namespace InfinityEngine.Localization
         /// </summary>
         [SerializeField] private SpriteComponentType type;
 
-        [Popup(R3.sprites.Names, PopupValueTypes.String, true)]
         [SerializeField]
         private string key;
 
