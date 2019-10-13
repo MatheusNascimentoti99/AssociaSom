@@ -49,6 +49,20 @@ public class GameController : MonoBehaviour
     // Start is called before the first frame update
     async void  Start()
     {
+
+        var dependencyStatus = await Firebase.FirebaseApp.CheckAndFixDependenciesAsync();
+            if (dependencyStatus == Firebase.DependencyStatus.Available)
+            {
+                FirebaseApp.DefaultInstance.SetEditorDatabaseUrl("https://associasom-2ccf9.firebaseio.com/");
+                dbInstance = Firebase.Database.FirebaseDatabase.DefaultInstance;
+           
+            }
+            else
+            {
+                UnityEngine.Debug.LogError(System.String.Format(
+                  "Could not resolve all Firebase dependencies: {0}", dependencyStatus));
+            }
+        
         figuras = new List<DataObject>();
         localHighestScore = Application.persistentDataPath + "/Score.up";
         
@@ -349,7 +363,7 @@ public class GameController : MonoBehaviour
 
     public async Task<DataSnapshot> LoadDataBase(List<DataObject> figurasImport)
     {
-        dbInstance = Firebase.Database.FirebaseDatabase.DefaultInstance;
+        
         running = true;
         Debug.Log("Esperando1 " + running);
         return await dbInstance.GetReference("figuras").GetValueAsync();
