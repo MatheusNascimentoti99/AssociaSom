@@ -31,9 +31,7 @@ public class GameController : MonoBehaviour
     public DicaController dicaController;
     public ConfigController config;
 
-    private DataObject[] figuraShows;
     private List<DataObject> figuras;
-    private List<DataObject> figurasImport;
     public int quantOpcoes;
     private int erros;
     private int quantRodada;
@@ -44,6 +42,8 @@ public class GameController : MonoBehaviour
     private string localHighestScore;
     private Pontuacao highestScore;
 
+    private int rodadaDica;
+    private int quantDica;
     private Firebase.Database.FirebaseDatabase dbInstance;
     private bool running;
     // Start is called before the first frame update
@@ -61,8 +61,9 @@ public class GameController : MonoBehaviour
             {
                 UnityEngine.Debug.LogError(System.String.Format(
                   "Could not resolve all Firebase dependencies: {0}", dependencyStatus));
+                _ErroInternet();
             }
-        
+        quantDica = 5;
         figuras = new List<DataObject>();
         localHighestScore = Application.persistentDataPath + "/Score.up";
         
@@ -83,25 +84,33 @@ public class GameController : MonoBehaviour
         }
         else
         {
-            var taskImport = await LoadDataBase(figuras);
-            Debug.Log("Esperando2 " + running);
-            DataSnapshot import = taskImport;
-            figurasImport = new List<DataObject>();
-            foreach (DataSnapshot figura in import.Children)
-            {
+            _AvisoPersonalizado("Carregando figuras e áudios...");
+            await dbInstance.GetReference("figuras").GetValueAsync().ContinueWith(task => {
+                if (task.IsFaulted)
+                {
+                    _ErroInternet();
+                    // Handle the error...
+                }
+                else if (task.IsCompleted)
+                {
+                    foreach (DataSnapshot figura in task.Result.Children)
+                    {
 
-                IDictionary discFigura = (IDictionary)figura.Value;
-                DataObject data = new DataObject(discFigura["nomeFigura"].ToString(),
-                    discFigura["dica"].ToString(), discFigura["localImagem"].ToString(),
-                    discFigura["localAudio"].ToString(), (bool)discFigura["rigthAnswer"]);
-                Debug.Log(data.GetNomeFigura());
-                figurasImport.Add(data);
-                
-            }
-            figuras = figurasImport;
+                        IDictionary discFigura = (IDictionary)figura.Value;
+                        DataObject data = new DataObject(discFigura["nomeFigura"].ToString(),
+                            discFigura["dica"].ToString(), discFigura["localImagem"].ToString(),
+                            discFigura["localAudio"].ToString(), (bool)discFigura["rigthAnswer"]);
+                        Debug.Log(data.GetNomeFigura());
+                        figuras.Add(data);
+                        Debug.Log(figuras.Count);
+
+                    }
+
+                }
+            });
         }
 
-       
+        Debug.Log("Teste");
         Debug.Log(figuras.Count);
         if (figuras.Count > 1)
         {
@@ -145,7 +154,7 @@ public class GameController : MonoBehaviour
 
         if (figuras.Count > 0)
         {
-
+            quantDica++;
             quantRodada++;
             int posRadomAllFiguras = Random.Range(0, figuras.Count);
             Debug.Log("Quand:" + figuras.Count + "posicão:" + posRadomAllFiguras);
@@ -203,15 +212,21 @@ public class GameController : MonoBehaviour
         string localFile = !config.getImportFiguras() ? "file://" + rodada.figuraCerta.GetLocalAudio() : rodada.figuraCerta.GetLocalAudio();
         using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip(localFile, AudioType.WAV))
         {
+            if (www.uploadProgress < 1)
+            {
+                _AvisoPersonalizado("Carregando imagens...");
+            }
             yield return www.SendWebRequest();
 
             if (www.isNetworkError)
             {
+                _ErroInternet();
                 Debug.Log(www.error);
             }
             else
             {
                 audioSource.clip = DownloadHandlerAudioClip.GetContent(www);
+                aviso.gameObject.SetActive(false);
             }
         }
     }
@@ -251,7 +266,14 @@ public class GameController : MonoBehaviour
 
     public void Dica()
     {
-        dicaController.CallDica(rodada.figuraCerta.Dica());
+        
+        bool callDica = dicaController.CallDica(rodada.figuraCerta.Dica(), quantDica, rodadaDica, quantRodada);
+        if (callDica)
+        {
+            quantDica = 0;
+            rodadaDica = quantRodada;
+        }
+            
     }
 
 
@@ -289,17 +311,13 @@ public class GameController : MonoBehaviour
 
     private void ShowQuestion(Rodada rodada)
     {
-        StartCoroutine(GetAudioClip());
-        isShow = false;
+        
         RemoveAnswerButtons();
         for (int i = 0; i < rodada.opcoes.Count; i++)
         {
             StartCoroutine(GetText(rodada.opcoes[i]));
-            isShow = false;
         }
-        isShow = true;
-
-
+            StartCoroutine(GetAudioClip());
     }
 
     IEnumerator GetText(DataObject data)
@@ -308,10 +326,14 @@ public class GameController : MonoBehaviour
         using (UnityWebRequest uwr = UnityWebRequestTexture.GetTexture(localFile))
         {
             Debug.Log(data.GetLocalImagem());
+            if (uwr.uploadProgress < 1)
+            {
+                _AvisoPersonalizado("Carregando imagens...");
+            }
             yield return uwr.SendWebRequest();
-
             if (uwr.isNetworkError || uwr.isHttpError)
             {
+                _ErroInternet();
                 Debug.Log(uwr.error);
             }
             else
@@ -324,6 +346,8 @@ public class GameController : MonoBehaviour
                 answerButton.Setup(data, false);
                 Texture2D tex = DownloadHandlerTexture.GetContent(uwr);
                 answerButton.GetComponent<Image>().sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0, 0));
+                aviso.gameObject.SetActive(false);
+                isShow = true;
             }
         }
     }
@@ -361,15 +385,46 @@ public class GameController : MonoBehaviour
         return pontuacao;
     }
 
-    public async Task<DataSnapshot> LoadDataBase(List<DataObject> figurasImport)
+    public async void LoadDataBase(List<DataObject> figurasImport)
     {
         
         running = true;
         Debug.Log("Esperando1 " + running);
-        return await dbInstance.GetReference("figuras").GetValueAsync();
+        await dbInstance.GetReference("figuras").GetValueAsync().ContinueWith(task => {
+            if (task.IsFaulted)
+            {
+                _ErroInternet();
+                // Handle the error...
+            }
+            else if (task.IsCompleted)
+            {
+                foreach (DataSnapshot figura in task.Result.Children)
+                {
+
+                    IDictionary discFigura = (IDictionary)figura.Value;
+                    DataObject data = new DataObject(discFigura["nomeFigura"].ToString(),
+                        discFigura["dica"].ToString(), discFigura["localImagem"].ToString(),
+                        discFigura["localAudio"].ToString(), (bool)discFigura["rigthAnswer"]);
+                    Debug.Log(data.GetNomeFigura());
+                    figurasImport.Add(data);
+
+                }
+                
+            }
+        });
     }
 
 
+    private void _ErroInternet()
+    {
+        aviso.gameObject.SetActive(true);
+        aviso.text = "Sem conexão com a internet";
+    }
 
+    private void _AvisoPersonalizado(string text)
+    {
+        aviso.gameObject.SetActive(true);
+        aviso.text = text;
+    }
 }
 
