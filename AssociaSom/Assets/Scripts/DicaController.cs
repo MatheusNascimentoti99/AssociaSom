@@ -24,22 +24,23 @@ public class DicaController : MonoBehaviour
                 call.Speak(textDica);
             return true;
         }
-        else
+        else if(panelDica.activeSelf)
         {
-            if (quantDica == 1)
+            if (5 - quantDica == 1)
             {
-                dica.text = "Falta " + (5 - quantDica) + "rodadas para usar a dica";
+                dica.text = "Falta " + (5 - quantDica) + " rodada para usar a dica";
                 if (config.getAudioDescricao())
-                    call.Speak("Falta " + (5 - quantDica) + " para usar a dica");
+                    call.Speak("Falta " + (5 - quantDica) + " rodada para usar a dica");
             }
             else
             {
-                dica.text = "Faltam " + (5 - quantDica) + "rodadas para usar a dica";
+                dica.text = "Faltam " + (5 - quantDica) + " rodadas para usar a dica";
                 if (config.getAudioDescricao())
-                    call.Speak("Faltam " + (5 - quantDica) + " para usar a dica");
+                    call.Speak("Faltam " + (5 - quantDica) + " rodadas para usar a dica");
             }
             return false;
         }
+        return false;
     }
 
     // Update is called once per frame
