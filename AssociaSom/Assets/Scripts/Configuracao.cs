@@ -10,11 +10,13 @@ using UnityEngine;
 public class Configuracao
 {
     public bool importFiguras;
-    public bool audioDescricao; 
+    public bool audioDescricao;
+    public bool musica;
     public Configuracao()
     {
         importFiguras = true;
         audioDescricao = true;
+        musica = true;
     }
 }
 
