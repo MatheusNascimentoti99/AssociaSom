@@ -55,6 +55,7 @@ namespace InfinityEngine.Localization
         [SerializeField]
         private TextComponentType type;
 
+        [Popup(R3.strings.Names, PopupValueTypes.String, true)]
         [SerializeField]
         private string key;
 
@@ -89,7 +90,7 @@ namespace InfinityEngine.Localization
                 case TextComponentType.TextMesh:
                     component = textMesh = GetComponent<TextMesh>();
                     break;
-
+        
             }
 
             if (component == null)
@@ -107,6 +108,7 @@ namespace InfinityEngine.Localization
             if (textMesh != null)
                 textMesh.text = ISILocalization.GetValueOf(key);
 
+    
         }
 
         /// <summary>
