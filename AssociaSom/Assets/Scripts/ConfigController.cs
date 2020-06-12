@@ -23,7 +23,7 @@ public class ConfigController : MonoBehaviour
     }
     private void Awake()
     {
-        filePath = Application.persistentDataPath + "/config.up";
+        filePath = Application.persistentDataPath + "/configs.data";
         FirebaseApp.DefaultInstance.SetEditorDatabaseUrl("https://associasom-2ccf9.firebaseio.com/");
         // Get the root reference location of the database.
         DatabaseReference reference = FirebaseDatabase.DefaultInstance.RootReference;
@@ -76,7 +76,7 @@ public class ConfigController : MonoBehaviour
         {
             config = new Configuracao();
         }
-        Debug.Log("Audio:" + config.audioDescricao + ", FIguras: " + config.importFiguras);
+        Debug.Log("Audio:" + config.audioDescricao + ", FIguras: " + config.importFiguras + ", Música: " + config.musica);
     }
 
     public bool getImportFiguras()
@@ -88,7 +88,13 @@ public class ConfigController : MonoBehaviour
     {
         return config.audioDescricao;
     }
+    public bool getMusica(){
+        return config.musica;
+    }
 
+    public void setMusica(bool musica){
+        config.musica = musica;
+    }
     public void setImport(bool import)
     {
         config.importFiguras = import;
@@ -98,7 +104,9 @@ public class ConfigController : MonoBehaviour
     {
         config.audioDescricao = audioDesc;
     }
-
+    public void setStateMusica(){
+        config.musica = !config.musica;
+    }
     public void setStateImport()
     {
         config.importFiguras = !config.importFiguras;

@@ -3,11 +3,23 @@ using UnityEngine.SceneManagement;
 
 public class MenuController : MonoBehaviour
 {
-    private DataController data;
+    public AudioSource musicaFundo;
+    public ConfigController config;
+
+
     // Start is called before the first frame update
     void Start()
     {
-        data = FindObjectOfType<DataController>();   
+        musicaFundo.mute = false;
+        Debug.Log(!config.getMusica());
+        if (!config.getMusica())
+            musicaFundo.mute = true;
+    }
+    private void Awake()
+    {
+        config.Up();
+        
+
     }
 
     public void Menu()

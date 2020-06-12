@@ -10,12 +10,13 @@ public class RecordeController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        nomeRecorde.text = gameController.getRecorde().getNameJogador() + ": " + string.Format("{0:00}", gameController.getRecorde().getScore()) + " Pontos";   
+        if (gameController.getRecorde() != null)
+            nomeRecorde.text = gameController.getRecorde().getNameJogador() + ": " + string.Format("{0:00}", gameController.getRecorde().getScore()) + " Pontos";
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 }

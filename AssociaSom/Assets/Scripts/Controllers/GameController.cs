@@ -41,37 +41,41 @@ public class GameController : MonoBehaviour
     private bool isShow;
     private string localHighestScore;
     private Pontuacao highestScore;
+    public AudioSource musicaFundo;
 
     private int rodadaDica;
     private int quantDica;
     private Firebase.Database.FirebaseDatabase dbInstance;
     private bool running;
     // Start is called before the first frame update
-    async void  Start()
+    async void Start()
     {
-
+        musicaFundo.mute = false;
+        Debug.Log(!config.getMusica());
+        if (!config.getMusica())
+            musicaFundo.mute = true;
         var dependencyStatus = await Firebase.FirebaseApp.CheckAndFixDependenciesAsync();
-            if (dependencyStatus == Firebase.DependencyStatus.Available)
-            {
-                FirebaseApp.DefaultInstance.SetEditorDatabaseUrl("https://associasom-2ccf9.firebaseio.com/");
-                dbInstance = Firebase.Database.FirebaseDatabase.DefaultInstance;
-           
-            }
-            else
-            {
-                UnityEngine.Debug.LogError(System.String.Format(
-                  "Could not resolve all Firebase dependencies: {0}", dependencyStatus));
-                _ErroInternet();
-            }
+        if (dependencyStatus == Firebase.DependencyStatus.Available)
+        {
+            FirebaseApp.DefaultInstance.SetEditorDatabaseUrl("https://associasom-2ccf9.firebaseio.com/");
+            dbInstance = Firebase.Database.FirebaseDatabase.DefaultInstance;
+
+        }
+        else
+        {
+            UnityEngine.Debug.LogError(System.String.Format(
+              "Could not resolve all Firebase dependencies: {0}", dependencyStatus));
+            _ErroInternet();
+        }
         quantDica = 5;
         figuras = new List<DataObject>();
         localHighestScore = Application.persistentDataPath + "/Score.up";
-        
+
         highestScore = (Pontuacao)LoadScore(localHighestScore);
         if (highestScore == null)
         {
             highestScore = new Pontuacao(0, "");
-            
+
         }
         isShow = false;
         quantRodada = 0;
@@ -85,7 +89,8 @@ public class GameController : MonoBehaviour
         else
         {
             _AvisoPersonalizado("Carregando figuras e áudios...");
-            await dbInstance.GetReference("figuras").GetValueAsync().ContinueWith(task => {
+            await dbInstance.GetReference("figuras").GetValueAsync().ContinueWith(task =>
+            {
                 if (task.IsFaulted)
                 {
                     _ErroInternet();
@@ -131,7 +136,7 @@ public class GameController : MonoBehaviour
     private void Awake()
     {
         config.Up();
-        
+
 
     }
 
@@ -141,7 +146,8 @@ public class GameController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape) && dicaController.panelDica.gameObject.activeSelf)
         {
             dicaController.panelDica.gameObject.SetActive(false);
-        }else if (Input.GetKeyDown(KeyCode.Escape))
+        }
+        else if (Input.GetKeyDown(KeyCode.Escape))
         {
             Destroy(gameObject);
             SceneManager.LoadScene("Menu");
@@ -167,7 +173,7 @@ public class GameController : MonoBehaviour
             quantRodada++;
             int posRadomAllFiguras = Random.Range(0, figuras.Count);
             Debug.Log("Quand:" + figuras.Count + "posicão:" + posRadomAllFiguras);
-           
+
             rodada = new Rodada(quantOpcoes, figuras[posRadomAllFiguras]);
             rodada.figuraCerta = figuras[posRadomAllFiguras];
             rodada.figuraCerta.rigthAnswer = true;
@@ -219,7 +225,7 @@ public class GameController : MonoBehaviour
     IEnumerator GetAudioClip()
     {
         string localFile = !config.getImportFiguras() ? "file://" + rodada.figuraCerta.GetLocalAudio() : rodada.figuraCerta.GetLocalAudio();
-        using (UnityWebRequest www = config.getImportFiguras()? UnityWebRequestMultimedia.GetAudioClip(localFile, AudioType.MPEG) : UnityWebRequestMultimedia.GetAudioClip(localFile, AudioType.WAV))
+        using (UnityWebRequest www = config.getImportFiguras() ? UnityWebRequestMultimedia.GetAudioClip(localFile, AudioType.MPEG) : UnityWebRequestMultimedia.GetAudioClip(localFile, AudioType.WAV))
         {
             if (www.uploadProgress < 1)
             {
@@ -243,9 +249,11 @@ public class GameController : MonoBehaviour
 
     public void AnswerButtonClicked(bool estaCorreto, DataObject data)
     {
+        string [] acertos = { "Parabéeens!", "Muito bem!", "Está indo bem!", "Você acertou!", "Ótimo!", "Continue assim!" };
         audioSource.Stop();
         if (data.Equals(rodada.figuraCerta))
         {
+            ReproduzirNome(acertos[Random.Range(0, acertos.Length +1)]);
             audioSource.clip = null;
             higthScore += 100 * quantRodada / rodada.tempo;
             score.text = "Pontuação:" + string.Format("{0:00}", higthScore);
@@ -258,8 +266,9 @@ public class GameController : MonoBehaviour
 
         else
         {
-            if(config.getAudioDescricao())
-                ReproduzirNome(data.GetNomeFigura()+", Não!");
+            string[] msgErros = { "Tentei outra vez!", "Vamos lá!", "continue tentando!", "Ops!", "Tente outra!"};
+            if (config.getAudioDescricao())
+                ReproduzirNome(msgErros[Random.Range(0, msgErros.Length +1)]);
             erros++;
             if (erros > 3)
             {
@@ -277,19 +286,25 @@ public class GameController : MonoBehaviour
 
     public void Dica()
     {
-        
+
         bool callDica = dicaController.CallDica(rodada.figuraCerta.Dica(), quantDica, rodadaDica, quantRodada);
         if (callDica)
         {
             quantDica = 0;
             rodadaDica = quantRodada;
         }
-            
+
     }
 
 
     public void GameOver()
     {
+        AnswerButton[] buttons = GameObject.FindObjectsOfType<AnswerButton>();
+        foreach (AnswerButton element in buttons)
+        {
+            Debug.Log("Aqui");
+            element.gameObject.SetActive(false);
+        }
         gameOverPanel.SetActive(true);
         if (highestScore.getScore() < higthScore)
         {
@@ -305,11 +320,11 @@ public class GameController : MonoBehaviour
         if (highestScore.getScore() < higthScore)
         {
             Pontuacao pontuacao = new Pontuacao(higthScore, gameOver.nomeJogador.text);
-            SaveScore(pontuacao ,localHighestScore);
+            SaveScore(pontuacao, localHighestScore);
             Destroy(gameObject);
             SceneManager.LoadScene("Menu");
         }
-        
+
     }
     private void RemoveAnswerButtons()
     {
@@ -322,13 +337,13 @@ public class GameController : MonoBehaviour
 
     private void ShowQuestion(Rodada rodada)
     {
-        
+
         RemoveAnswerButtons();
         for (int i = 0; i < rodada.opcoes.Count; i++)
         {
             StartCoroutine(GetText(rodada.opcoes[i]));
         }
-            StartCoroutine(GetAudioClip());
+        StartCoroutine(GetAudioClip());
     }
 
     IEnumerator GetText(DataObject data)
@@ -352,7 +367,7 @@ public class GameController : MonoBehaviour
                 // Get downloaded asset bundle
                 GameObject answerButtonObject = answerButtonOjbectPool.GetObject();
                 answerButtonObject.transform.SetParent(answerButtonParent);
-                
+
                 AnswerButton answerButton = answerButtonObject.GetComponent<AnswerButton>();
                 answerButton.Setup(data, false);
                 Texture2D tex = DownloadHandlerTexture.GetContent(uwr);
@@ -399,10 +414,11 @@ public class GameController : MonoBehaviour
 
     public async void LoadDataBase(List<DataObject> figurasImport)
     {
-        
+
         running = true;
         Debug.Log("Esperando1 " + running);
-        await dbInstance.GetReference("figuras").GetValueAsync().ContinueWith(task => {
+        await dbInstance.GetReference("figuras").GetValueAsync().ContinueWith(task =>
+        {
             if (task.IsFaulted)
             {
                 _ErroInternet();
@@ -421,7 +437,7 @@ public class GameController : MonoBehaviour
                     figurasImport.Add(data);
 
                 }
-                
+
             }
         });
     }

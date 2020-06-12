@@ -27,6 +27,7 @@ public class GameOver : MonoBehaviour
 
     public void Failed(int quantRodada, double record)
     {
+        
         aviso.text = "Não foi dessa vez! :/\n Tente novamente quando achar melhor";
         submit.gameObject.SetActive(false);
         nomeJogador.gameObject.SetActive(false);
