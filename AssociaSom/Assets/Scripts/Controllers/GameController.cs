@@ -29,7 +29,7 @@ public class GameController : MonoBehaviour
     public Transform answerButtonParent;
     public Text aviso;
     public DicaController dicaController;
-    public ConfigController config;
+    private ConfigController config;
 
     private List<DataObject> figuras;
     public int quantOpcoes;
@@ -50,10 +50,13 @@ public class GameController : MonoBehaviour
     // Start is called before the first frame update
     async void Start()
     {
+        config = FindObjectOfType<ConfigController>();
         musicaFundo.mute = false;
         Debug.Log(!config.getMusica());
         if (!config.getMusica())
             musicaFundo.mute = true;
+        else
+            musicaFundo.mute = false;
         var dependencyStatus = await Firebase.FirebaseApp.CheckAndFixDependenciesAsync();
         if (dependencyStatus == Firebase.DependencyStatus.Available)
         {
@@ -135,7 +138,7 @@ public class GameController : MonoBehaviour
 
     private void Awake()
     {
-        config.Up();
+        FindObjectOfType<ConfigController>().LoadConfig();
 
 
     }
@@ -253,7 +256,7 @@ public class GameController : MonoBehaviour
         audioSource.Stop();
         if (data.Equals(rodada.figuraCerta))
         {
-            ReproduzirNome(acertos[Random.Range(0, acertos.Length +1)]);
+            ReproduzirNome(acertos[Random.Range(0, acertos.Length)]);
             audioSource.clip = null;
             higthScore += 100 * quantRodada / rodada.tempo;
             score.text = "Pontuação:" + string.Format("{0:00}", higthScore);
@@ -268,7 +271,7 @@ public class GameController : MonoBehaviour
         {
             string[] msgErros = { "Tentei outra vez!", "Vamos lá!", "continue tentando!", "Ops!", "Tente outra!"};
             if (config.getAudioDescricao())
-                ReproduzirNome(msgErros[Random.Range(0, msgErros.Length +1)]);
+                ReproduzirNome(msgErros[Random.Range(0, msgErros.Length)]);
             erros++;
             if (erros > 3)
             {

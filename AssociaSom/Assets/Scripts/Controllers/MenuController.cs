@@ -4,22 +4,21 @@ using UnityEngine.SceneManagement;
 public class MenuController : MonoBehaviour
 {
     public AudioSource musicaFundo;
-    public ConfigController config;
-
 
     // Start is called before the first frame update
     void Start()
     {
-        musicaFundo.mute = false;
-        Debug.Log(!config.getMusica());
-        if (!config.getMusica())
+        Debug.Log(!FindObjectOfType<ConfigController>().getMusica());
+        if (!FindObjectOfType<ConfigController>().getMusica())
             musicaFundo.mute = true;
+        else
+            musicaFundo.mute = false;
+    }
+    private void Update()
+    {
     }
     private void Awake()
     {
-        config.Up();
-        
-
     }
 
     public void Menu()

@@ -8,11 +8,11 @@ public class DicaController : MonoBehaviour
     public Text dica;
     public Falar call;
     public GameObject panelDica;
-    public ConfigController config;
+    private ConfigController config;
     // Start is called before the first frame update
     void Start()
     {
-        
+        config = FindObjectOfType<ConfigController>();
     }
     public bool CallDica(string textDica, int quantDica, int rodadaDica, int rodadaAtual)
     {

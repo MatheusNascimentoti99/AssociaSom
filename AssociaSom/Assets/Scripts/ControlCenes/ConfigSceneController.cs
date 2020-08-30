@@ -25,7 +25,7 @@ public class ConfigSceneController : MonoBehaviour
     }
     private void Awake()
     {
-        config.Up();
+        FindObjectOfType<ConfigController>().LoadConfig();
         Debug.Log(config);
         enableAudio.isOn = config.getAudioDescricao();
         enableImport.isOn = config.getImportFiguras();
@@ -83,6 +83,7 @@ public class ConfigSceneController : MonoBehaviour
         else
             enableMusic.GetComponentInChildren<Image>().sprite = Resources.Load<Sprite>("off");
         config.SaveConfig();
+        FindObjectOfType<MenuController>().musicaFundo.mute = !config.getMusica();
         Debug.Log("Situação:" + enableMusic.isOn);
 
         Debug.Log("Situação: AUdio- " + config.getAudioDescricao() + "  FIg: " + config.getImportFiguras() + ", Musica: " + config.getMusica());

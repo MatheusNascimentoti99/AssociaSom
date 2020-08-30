@@ -16,15 +16,11 @@ public class ConfigController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-    }
-    public void Up()
-    {
-        loadConfig();
+        
     }
     private void Awake()
     {
         filePath = Application.persistentDataPath + "/configs.data";
-        FirebaseApp.DefaultInstance.SetEditorDatabaseUrl("https://associasom-2ccf9.firebaseio.com/");
         // Get the root reference location of the database.
         DatabaseReference reference = FirebaseDatabase.DefaultInstance.RootReference;
         if (configController == null)
@@ -35,8 +31,7 @@ public class ConfigController : MonoBehaviour
         {
             Destroy(gameObject);
         }
-
-       
+        LoadConfig();
         DontDestroyOnLoad(gameObject);
     }
 
@@ -55,6 +50,7 @@ public class ConfigController : MonoBehaviour
             BinaryFormatter formatter = new BinaryFormatter();
             formatter.Serialize(fs, config);
             fs.Close();
+            FindObjectOfType<ConfigController>().LoadConfig();
         }
         catch (SerializationException e)
         {
@@ -63,7 +59,7 @@ public class ConfigController : MonoBehaviour
 
     }
 
-    private void loadConfig()
+    public void LoadConfig()
     {
         if (File.Exists(filePath))
         {
