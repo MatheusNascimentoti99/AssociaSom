@@ -10,9 +10,12 @@ public class MenuController : MonoBehaviour
     {
         Debug.Log(!FindObjectOfType<ConfigController>().getMusica());
         if (!FindObjectOfType<ConfigController>().getMusica())
-            musicaFundo.mute = true;
+             musicaFundo.mute = true;
         else
+        {
+            musicaFundo.loop = true;
             musicaFundo.mute = false;
+        }     
     }
     private void Update()
     {

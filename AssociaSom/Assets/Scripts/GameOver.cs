@@ -20,6 +20,7 @@ public class GameOver : MonoBehaviour
         nomeJogador.gameObject.SetActive(true);
         imagem.sprite = Resources.Load<Sprite>("sucess");
         audio.clip = Resources.Load<AudioClip>("win");
+        audio.loop = false;
         audio.Play();
         rodada.text = "Você parou na rodada: " + quantRodada;
         recordeAtual.text = "Antigo recorde: " + string.Format("{0:00}", record);
@@ -35,6 +36,7 @@ public class GameOver : MonoBehaviour
         rodada.text = "Você parou na rodada: " + quantRodada;
         recordeAtual.text = "Recorde atual: " + string.Format("{0:00}", record);
         audio.clip = Resources.Load<AudioClip>("fail");
+        audio.loop = false;
         audio.Play();
     }
 

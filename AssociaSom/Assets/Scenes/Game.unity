@@ -1076,7 +1076,7 @@ MonoBehaviour:
     importFiguras: 1
     audioDescricao: 1
     musica: 1
-  audio: {fileID: 0}
+  audio: {fileID: 739549551}
 --- !u!1 &414199047
 GameObject:
   m_ObjectHideFlags: 0
@@ -1645,7 +1645,6 @@ MonoBehaviour:
   dica: {fileID: 855503644}
   call: {fileID: 1762534743}
   panelDica: {fileID: 321312902}
-  config: {fileID: 0}
 --- !u!4 &586166884
 Transform:
   m_ObjectHideFlags: 0
@@ -3307,7 +3306,6 @@ MonoBehaviour:
   answerButtonParent: {fileID: 1776582696}
   aviso: {fileID: 658680715}
   dicaController: {fileID: 586166883}
-  config: {fileID: 0}
   quantOpcoes: 4
   call: {fileID: 1762534743}
   musicaFundo: {fileID: 739549551}
