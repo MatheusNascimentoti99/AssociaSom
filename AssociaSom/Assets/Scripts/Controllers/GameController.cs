@@ -11,6 +11,7 @@ using Firebase;
 using Firebase.Database;
 using Firebase.Unity.Editor;
 using System.Threading.Tasks;
+using System.Linq;
 
 public class GameController : MonoBehaviour
 {
@@ -365,6 +366,10 @@ public class GameController : MonoBehaviour
                 _ErroInternet();
                 Debug.Log(uwr.error);
             }
+            else if (answerButtonGameObjects.Count == 4)
+            {
+                
+            }
             else
             {
                 // Get downloaded asset bundle
@@ -379,6 +384,7 @@ public class GameController : MonoBehaviour
                 aviso.gameObject.SetActive(false);
                 isShow = true;
             }
+            
         }
     }
 
