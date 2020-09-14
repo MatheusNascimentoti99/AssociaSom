@@ -257,8 +257,13 @@ public class GameController : MonoBehaviour
         audioSource.Stop();
         if (data.Equals(rodada.figuraCerta))
         {
-            ReproduzirNome(acertos[Random.Range(0, acertos.Length)]);
-            audioSource.clip = null;
+            if(quantRodada % 3 == 0)
+                ReproduzirNome(acertos[Random.Range(0, acertos.Length)]);
+            else
+            {
+                audioSource.clip = Resources.Load<AudioClip>("right");
+                audioSource.Play();
+            }
             higthScore += 100 * quantRodada / rodada.tempo;
             score.text = "Pontuação:" + string.Format("{0:00}", higthScore);
             isShow = false;
@@ -270,9 +275,8 @@ public class GameController : MonoBehaviour
 
         else
         {
-            string[] msgErros = { "Tentei outra vez!", "Vamos lá!", "continue tentando!", "Ops!", "Tente outra!"};
-            if (config.getAudioDescricao())
-                ReproduzirNome(msgErros[Random.Range(0, msgErros.Length)]);
+            audioSource.clip = Resources.Load<AudioClip>("wrong");
+            audioSource.Play();
             erros++;
             if (erros > 3)
             {
