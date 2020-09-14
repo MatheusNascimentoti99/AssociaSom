@@ -85,13 +85,9 @@ public class GameController : MonoBehaviour
         quantRodada = 0;
         erros = 0;
 
-        if (!config.getImportFiguras())
+        if (config.getImportFiguras())
         {
-            dataController.Load();
-            figuras = dataController.getFiguras();
-        }
-        else
-        {
+            figuras = dataController.Load();
             _AvisoPersonalizado("Carregando figuras e áudios...");
             await dbInstance.GetReference("figuras").GetValueAsync().ContinueWith(task =>
             {
@@ -117,6 +113,10 @@ public class GameController : MonoBehaviour
 
                 }
             });
+        }
+        else
+        {
+            figuras = dataController.Load();
         }
 
         Debug.Log("Teste");
