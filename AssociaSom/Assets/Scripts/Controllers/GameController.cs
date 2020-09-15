@@ -226,7 +226,7 @@ public class GameController : MonoBehaviour
     IEnumerator GetAudioClip()
     {
         string localFile = rodada.figuraCerta.GetLocal() ? "file://" + rodada.figuraCerta.GetLocalAudio() : rodada.figuraCerta.GetLocalAudio();
-        using (UnityWebRequest www = config.getImportFiguras() ? UnityWebRequestMultimedia.GetAudioClip(localFile, AudioType.MPEG) : UnityWebRequestMultimedia.GetAudioClip(localFile, AudioType.WAV))
+        using (UnityWebRequest www = rodada.figuraCerta.GetLocal() ? UnityWebRequestMultimedia.GetAudioClip(localFile, AudioType.WAV) : UnityWebRequestMultimedia.GetAudioClip(localFile, AudioType.MPEG))
         {
             if (www.uploadProgress < 1)
             {
