@@ -97,7 +97,7 @@ public class DataController : MonoBehaviour
         data.SetDica(dica.text);
         data.SetLocalImagem(localImagem);
         data.SetNomeFigura(nomeFigura.text);
-
+        data.SetLocal(true);
         // StartCoroutine(UploadImage());
 
         if (nomeFigura.text.Length > 0 && dica.text.Length > 0 && audio.audioSource.clip != null && localImagem.Length > 0)

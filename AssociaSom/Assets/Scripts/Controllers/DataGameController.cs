@@ -44,7 +44,7 @@ public class DataGameController : MonoBehaviour
         
     }
 
-    public void Load()
+    public List<DataObject> Load()
     {
         if (File.Exists(filePath))
         {
@@ -58,6 +58,7 @@ public class DataGameController : MonoBehaviour
         {
             figuras = new List<DataObject>();
         }
+        return figuras;
     }
 
     public Pontuacao getRecorde()

@@ -11,19 +11,27 @@ public class DataObject
     private string localImagem;
     private string localAudio;
     public bool rigthAnswer;
+    private bool local;
 
 
-    public DataObject(string nomeFigura, string dica, string localImagem, string localAudio, bool rigthAnswer)
+    public DataObject(string nomeFigura, string dica, string localImagem, string localAudio, bool rigthAnswer, bool local)
     {
         this.dica = dica;
         this.nomeFigura = nomeFigura;
         this.localAudio = localAudio;
         this.localImagem = localImagem;
         this.rigthAnswer = rigthAnswer;
+        this.local = local;
     }
-    public DataObject()
-    {
+    public DataObject(){
+        
+    }
+    public bool GetLocal(){
+        return local;
+    }
 
+    public void SetLocal(bool local){
+        this.local = local;
     }
 
     public string GetNomeFigura()
