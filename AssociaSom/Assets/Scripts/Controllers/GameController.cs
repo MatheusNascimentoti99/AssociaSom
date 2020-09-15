@@ -48,6 +48,7 @@ public class GameController : MonoBehaviour
     private int quantDica;
     private Firebase.Database.FirebaseDatabase dbInstance;
     private bool running;
+    private AudioClip soundRight;
     // Start is called before the first frame update
     async void Start()
     {
@@ -104,7 +105,7 @@ public class GameController : MonoBehaviour
                         IDictionary discFigura = (IDictionary)figura.Value;
                         DataObject data = new DataObject(discFigura["nomeFigura"].ToString(),
                             discFigura["dica"].ToString(), discFigura["localImagem"].ToString(),
-                            discFigura["localAudio"].ToString(), (bool)discFigura["rigthAnswer"]);
+                            discFigura["localAudio"].ToString(), (bool)discFigura["rigthAnswer"], false);
                         Debug.Log(data.GetNomeFigura());
                         figuras.Add(data);
                         Debug.Log(figuras.Count);
@@ -214,26 +215,22 @@ public class GameController : MonoBehaviour
     {
         call.Speak(frase);
     }
-    private void ReproduzirSom()
-    {
-        audioSource.Play();
 
-    }
     public void FalarButton()
     {
-        ReproduzirSom();
-
+        audioSource.clip = soundRight;
+        audioSource.Play();
     }
 
 
     IEnumerator GetAudioClip()
     {
-        string localFile = !config.getImportFiguras() ? "file://" + rodada.figuraCerta.GetLocalAudio() : rodada.figuraCerta.GetLocalAudio();
+        string localFile = rodada.figuraCerta.GetLocal() ? "file://" + rodada.figuraCerta.GetLocalAudio() : rodada.figuraCerta.GetLocalAudio();
         using (UnityWebRequest www = config.getImportFiguras() ? UnityWebRequestMultimedia.GetAudioClip(localFile, AudioType.MPEG) : UnityWebRequestMultimedia.GetAudioClip(localFile, AudioType.WAV))
         {
             if (www.uploadProgress < 1)
             {
-                _AvisoPersonalizado("Carregando imagens...");
+                _AvisoPersonalizado("Carregando Audio...");
             }
             yield return www.SendWebRequest();
 
@@ -244,7 +241,8 @@ public class GameController : MonoBehaviour
             }
             else
             {
-                audioSource.clip = DownloadHandlerAudioClip.GetContent(www);
+                soundRight = DownloadHandlerAudioClip.GetContent(www);
+                audioSource.clip = soundRight;
                 aviso.gameObject.SetActive(false);
             }
         }
@@ -270,7 +268,6 @@ public class GameController : MonoBehaviour
             panelFiguras.SetActive(false);
             NovaRodada();
             ShowQuestion(rodada);
-            FalarButton();
         }
 
         else
@@ -356,7 +353,7 @@ public class GameController : MonoBehaviour
 
     IEnumerator GetText(DataObject data)
     {
-        string localFile = !config.getImportFiguras() ? "file://" + data.GetLocalImagem() : data.GetLocalImagem();
+        string localFile = data.GetLocal() ? "file://" + data.GetLocalImagem() : data.GetLocalImagem();
         using (UnityWebRequest uwr = UnityWebRequestTexture.GetTexture(localFile))
         {
             Debug.Log(data.GetLocalImagem());
@@ -424,38 +421,6 @@ public class GameController : MonoBehaviour
         }
         return pontuacao;
     }
-
-    public async void LoadDataBase(List<DataObject> figurasImport)
-    {
-
-        running = true;
-        Debug.Log("Esperando1 " + running);
-        await dbInstance.GetReference("figuras").GetValueAsync().ContinueWith(task =>
-        {
-            if (task.IsFaulted)
-            {
-                _ErroInternet();
-                // Handle the error...
-            }
-            else if (task.IsCompleted)
-            {
-                foreach (DataSnapshot figura in task.Result.Children)
-                {
-
-                    IDictionary discFigura = (IDictionary)figura.Value;
-                    DataObject data = new DataObject(discFigura["nomeFigura"].ToString(),
-                        discFigura["dica"].ToString(), discFigura["localImagem"].ToString(),
-                        discFigura["localAudio"].ToString(), (bool)discFigura["rigthAnswer"]);
-                    Debug.Log(data.GetNomeFigura());
-                    figurasImport.Add(data);
-
-                }
-
-            }
-        });
-    }
-
-
     private void _ErroInternet()
     {
         aviso.gameObject.SetActive(true);
