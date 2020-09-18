@@ -31,10 +31,7 @@ public class MicrofoneController : MonoBehaviour
             audioSource.clip = Microphone.Start(null, false, 5, 44100);
             Debug.Log("teste:" + audioSource.timeSamples);
         }
-        else
-        {
-            Microphone.End(null);
-        }
+
     }
     internal string Salvar(string nameFile)
     {
@@ -56,7 +53,7 @@ public class MicrofoneController : MonoBehaviour
         if (Microphone.IsRecording(null))
         {
             timer += Time.deltaTime;
-                txtInformacao.text = "Gravando... " + string.Format("{0:00.#}", timer);
+                txtInformacao.text = "Gravando... " + string.Format("{0:00.#}", 5-timer);
 
         }
         else if (audioSource.clip !=null && !Microphone.IsRecording(null))
